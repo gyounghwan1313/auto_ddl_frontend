@@ -1,19 +1,15 @@
 import { useState } from 'react';
 import { Column } from '../types';
-import { getPhysicalColumnRecommendation, getLogicalColumnRecommendation } from '../services/api';
+import { getPhysicalColumnRecommendation } from '../services/api';
 
 export function useColumnManagement() {
   const [columns, setColumns] = useState<Column[]>([
     {
       id: 1,
-      physicalName: '',
       logicalName: '',
       dataType: 'varchar',
       isNull: false,
-      suggestedPhysicalName: '-',
-      suggestedLogicalName: '-',
-      applyPhysicalSuggestion: false,
-      applyLogicalSuggestion: false
+      suggestedPhysicalName: '-'
     }
   ]);
 
@@ -26,14 +22,10 @@ export function useColumnManagement() {
   const handleAddColumn = () => {
     const newColumn: Column = {
       id: columns.length + 1,
-      physicalName: '',
       logicalName: '',
       dataType: 'varchar',
       isNull: false,
-      suggestedPhysicalName: '-',
-      suggestedLogicalName: '-',
-      applyPhysicalSuggestion: false,
-      applyLogicalSuggestion: false
+      suggestedPhysicalName: '-'
     };
     setColumns([...columns, newColumn]);
   };
@@ -42,26 +34,22 @@ export function useColumnManagement() {
     setColumns(columns.filter(column => column.id !== columnId));
   };
 
-  const handleRequestSuggestion = async (columnId: number, type: 'physical' | 'logical') => {
+  const handleRequestSuggestion = async (columnId: number, type: 'physical') => {
     try {
       const column = columns.find(col => col.id === columnId);
       if (!column) return;
 
       const requestData = {
-        physical_col_nm: column.physicalName,
-        logical_col_nm: column.logicalName,
-        col_type: column.dataType
+        logical_name: column.logicalName
       };
 
-      const recommendedName = type === 'physical'
-        ? await getPhysicalColumnRecommendation(requestData)
-        : await getLogicalColumnRecommendation(requestData);
+      const recommendedName = await getPhysicalColumnRecommendation(requestData);
 
       setColumns(columns.map(col => 
         col.id === columnId 
           ? {
               ...col,
-              [type === 'physical' ? 'suggestedPhysicalName' : 'suggestedLogicalName']: recommendedName
+              suggestedPhysicalName: recommendedName
             }
           : col
       ));

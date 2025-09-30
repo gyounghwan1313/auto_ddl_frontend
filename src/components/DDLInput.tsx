@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { analyzeDDL } from '../services/api';
 import { TableInfo, Column } from '../types';
 
 interface Props {
@@ -17,21 +16,16 @@ export function DDLInput({ onClose, onAnalysis }: Props) {
     setIsAnalyzing(true);
 
     try {
-      const result = await analyzeDDL(ddl);
-      
+      // DDL 분석 기능이 비활성화됨
+      console.log('DDL analysis is disabled');
+      // 임시로 빈 데이터로 처리
       const tableInfo: TableInfo = {
-        database: result.database,
-        schema: result.schema,
-        tableName: result.table
+        database: '',
+        schema: '',
+        tableName: ''
       };
 
-      const columns: Column[] = result.columns.map(col => ({
-        ...col,
-        suggestedPhysicalName: '-',
-        suggestedLogicalName: '-',
-        applyPhysicalSuggestion: false,
-        applyLogicalSuggestion: false
-      }));
+      const columns: Column[] = [];
 
       onAnalysis(tableInfo, columns);
       onClose();
